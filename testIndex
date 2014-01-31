@@ -1,0 +1,249 @@
+<?php
+main();
+
+function main() {
+	$points = getPoints();
+	displayHTML();
+}
+
+function getPoints() {
+	$y = 42992611;
+	$x = -71467667;
+	$arr = array(array(42992211, -71467797));
+	for($i=0; $i<10; $i++) {
+		$arr[] = array($y + rand(-150, 150), $x + rand(-150, 150));
+	}
+	return $arr;
+}
+
+function convertPointsToHTML($points) {
+	$result = "<location><lattitude>42992611</lattitude><longitude>-71467667</longitude></location>";
+	foreach($points as $point)
+		$result .= "<point><lattitude>{$point[0]}</lattitude><longitude>{$point[1]}</longitude></point>";
+	return $result;
+}
+
+function buildZones($lattitude, $longitude) {
+	return <<<_END
+	// Define the LatLng coordinates for the polygon's path.
+	  var zoneCoords = [
+	    new google.maps.LatLng(42.992361, -71.467367),
+	    new google.maps.LatLng(42.992561, -71.467367),
+	    new google.maps.LatLng(42.992561, -71.467567),
+	    new google.maps.LatLng(42.992361, -71.467567),
+	    new google.maps.LatLng(42.992361, -71.467367)
+	  ];
+	  
+	  // Construct the polygon.
+	  zone = new google.maps.Polygon({
+	    paths: zoneCoords,
+	    strokeColor: 'gold',
+	    strokeOpacity: 0.8,
+	    strokeWeight: 2,
+	    fillColor: 'green',
+	    fillOpacity: 0.35
+	  });
+	  
+	  zone.setMap(map);
+_END;
+}
+
+function buildPoints($lattitude, $longitude) {
+	$zone = "";
+	return <<<_END
+    var circleOptions = {
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      clickable: true,
+      fillColor: '#FF0000',
+      fillOpacity: 0.35,
+      map: map,
+      center: new google.maps.LatLng($lattitude, $longitude),
+      radius: 2
+    };
+    // Add the circle for this city to the map.
+    stationCircle = new google.maps.Circle(circleOptions);
+_END;
+}
+
+function displayHTML() {
+$lattitude = "42.992561";
+$longitude = "-71.467667";
+$zoom = "19";
+$zones = buildZones($lattitude, $longitude);
+$points = buildPoints($lattitude, $longitude);
+//$myZone = buildMyZone($lattitude, $longitude);
+echo <<<_END
+<!DOCTYPE html >
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta charset="utf-8">
+    <title>PHP/MySQL & Google Maps Example</title>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script type="text/javascript">
+
+    var map;
+    var infoWindow = new google.maps.InfoWindow({
+      content: "<div>Hello World!<div>",
+    });
+
+    function load() {
+      var mapOptions = {
+        center: new google.maps.LatLng($lattitude, $longitude),
+        zoom: $zoom,
+        mapTypeId: 'satellite'
+      }
+      
+      var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+      
+      map.setTilt(0);
+      $zones
+      $points
+   
+      // Add a listener for the click event.
+      google.maps.event.addListener(stationCircle, 'click', function showArrays(event) {
+      infoWindow.setPosition(stationCircle.getCenter());
+      infoWindow.open(map);
+      });
+    }
+    google.maps.event.addDomListener(window, 'load', load);
+
+  </script>
+
+  </head>
+
+  <body onload="load()">
+  <table>
+		<tr>
+		<td>
+			<div id="map" style="width: 800px; height: 600px"></div>
+		</td><td valign="top">
+		<table bgcolor="#7788FF">
+			<tr>
+				<td bgcolor="white">
+				<h3>Snow Load Warning System 2KR Systems</h3>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<table width="100%" bgcolor="white" border=1>
+					<tr>
+						<td><strong>Building</strong>
+						</td>
+						<td>UNH Manchester
+						</td>
+					</tr>
+					<tr>
+						<td rowspan=2><strong>Address</strong>
+						</td>
+						<td>Address 1
+						</td>
+					</tr>
+					<tr>
+						<td>Address 2
+						</td>
+					</tr>
+				</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<table width="100%" bgcolor="white" border=1>
+					<tr>
+						<td rowspan=3><strong>Email<br />Alert</strong>
+						</td>
+						<td>test1@gmail.com
+						</td>
+					</tr>
+					<tr>
+						<td>test2@gmail.com
+						</td>
+					</tr>
+					<tr>
+						<td>test3@gmail.com
+						</td>
+					</tr>
+				</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<table width="100%" bgcolor="white" border=1>
+					<tr>
+						<td><strong>Email and Text Message</strong>
+						</td>
+					</tr>
+					<tr>
+						<td>Message goes here<br /><br /><br /><br />
+						</td>
+					</tr>
+				</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<table width="100%" bgcolor="white" border=1>
+					<tr>
+						<td align="center" colspan=2><strong>Zone</strong></td>
+						<td align="center" colspan=2><strong>Load</strong></td>
+					</tr>
+					<tr>
+						<td><strong>#</strong></td>
+						<td><strong>Color</strong></td>
+						<td><strong>Warning</strong></td>
+						<td><strong>Limit</strong></td>
+					</tr>
+					<tr>
+						<td>1</td>
+						<td></td>
+						<td>#</td>
+						<td>#</td>
+					</tr>
+					<tr>
+						<td>2</td>
+						<td></td>
+						<td>#</td>
+						<td>#</td>
+					</tr>
+				</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<table width="100%" bgcolor="white" border=1>
+					<tr>
+						<td rowspan=2><strong>Zone/ID</strong></td>
+						<td colspan=2><strong>Load (PSF)</strong></td>
+					</tr>
+					<tr>
+						<td><strong>Safe Limit</strong></td>
+						<td><strong>Actual</strong></td>
+					</tr>
+					<tr>
+						<td>300</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>301</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>302</td>
+						<td></td>
+						<td></td>
+					</tr>
+				</table>
+				</td>
+			</tr>
+			</table>
+		</td>
+		</table>
+  </body>
+
+</html>
+_END;
+}
+?>
